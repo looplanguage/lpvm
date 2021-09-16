@@ -1,6 +1,9 @@
 package vm
 
-import "github.com/looplanguage/compiler/code"
+import (
+	"github.com/looplanguage/compiler/code"
+	"github.com/looplanguage/loop/models/object"
+)
 
 func (vm *VM) Run() error {
 	for ip := 0; ip < len(vm.instructions); ip++ {
@@ -15,6 +18,15 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return nil
 			}
+		case code.OpAdd:
+			right := vm.pop()
+			left := vm.pop()
+			leftValue := left.(*object.Integer).Value
+			rightValue := right.(*object.Integer).Value
+
+			result := leftValue + rightValue
+
+			vm.push(&object.Integer{Value: result})
 		}
 	}
 

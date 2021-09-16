@@ -26,6 +26,12 @@ func Create(bytecode *compiler.Bytecode) *VM {
 	}
 }
 
+func (vm *VM) pop() object.Object {
+	o := vm.stack[vm.sp-1]
+	vm.sp--
+	return o
+}
+
 func (vm *VM) push(o object.Object) error {
 	if vm.sp >= StackSize {
 		return fmt.Errorf("stack overflow")
