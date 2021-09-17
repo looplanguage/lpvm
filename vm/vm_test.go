@@ -32,6 +32,10 @@ func TestBooleanExpressions(t *testing.T) {
 	tests := []vmTestCase{
 		{input: "true", expected: true},
 		{input: "false", expected: false},
+		{input: "1 == 1", expected: true},
+		{input: "true == false", expected: false},
+		{input: "true == true", expected: true},
+		{input: "1 == 10", expected: false},
 	}
 
 	runVmTests(t, tests)
@@ -40,7 +44,9 @@ func TestBooleanExpressions(t *testing.T) {
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
+	i := 0
 	for _, tc := range tests {
+		i++
 		program := parse(tc.input)
 
 		comp := compiler.Create()

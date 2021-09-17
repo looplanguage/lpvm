@@ -60,6 +60,11 @@ func (vm *VM) Run() error {
 			vm.push(True)
 		case code.OpFalse:
 			vm.push(False)
+		case code.OpEquals, code.OpNotEquals, code.OpGreaterThan:
+			err := vm.compareOperator(op)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
