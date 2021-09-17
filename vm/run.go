@@ -82,6 +82,11 @@ func (vm *VM) Run() error {
 			if !obj.Value {
 				ip = pos - 1
 			}
+		case code.OpNull:
+			err := vm.push(Null)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

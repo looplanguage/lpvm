@@ -48,6 +48,8 @@ func TestConditionalExpressions(t *testing.T) {
 		{input: "if (false) { 10 } else { 20 }", expected: 20},
 		{input: "if (1 > 10) { 10 } else { 20 }", expected: 20},
 		{input: "if (1 > 10) { 10 } else if(true) { 400 } else { 20 }", expected: 400},
+		{input: "if (1 > 10) {}", expected: Null},
+		{input: "if (false) {}", expected: Null},
 	}
 
 	runVmTests(t, tests)
@@ -96,6 +98,10 @@ func testExpectedObject(
 		err := testBoolObject(bool(expected), actual)
 		if err != nil {
 			t.Errorf("testBoolObject failed: %s", err)
+		}
+	case *object.Null:
+		if actual != Null {
+			t.Errorf("object is not null: %T (%+v)", actual, actual)
 		}
 	}
 }
