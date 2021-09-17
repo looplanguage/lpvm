@@ -56,6 +56,10 @@ func (vm *VM) Run() error {
 			vm.push(&object.Integer{Value: result})
 		case code.OpPop:
 			vm.pop()
+		case code.OpTrue:
+			vm.push(True)
+		case code.OpFalse:
+			vm.push(False)
 		}
 	}
 
