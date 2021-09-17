@@ -8,7 +8,6 @@ import (
 	"github.com/looplanguage/loop/parser"
 	"github.com/looplanguage/lpvm/vm"
 	"io"
-	"runtime"
 )
 
 // TODO: For testing, remove in eventual build & replace with it's own executable.
@@ -16,12 +15,12 @@ import (
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 
+	i := 0
+
 	for {
-		if runtime.GOOS != "windows" {
-			io.WriteString(out, "\\033[31m#\\033[0m")
-		} else {
-			io.WriteString(out, "# ")
-		}
+		i++
+		io.WriteString(out, fmt.Sprintf("%d", i))
+		io.WriteString(out, " > ")
 		scanned := scanner.Scan()
 
 		if !scanned {
