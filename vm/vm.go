@@ -50,3 +50,7 @@ func (vm *VM) StackTop() object.Object {
 
 	return vm.stack[vm.sp-1]
 }
+
+func (vm *VM) LastPoppedStackElem() object.Object {
+	return vm.stack[vm.sp]
+}
