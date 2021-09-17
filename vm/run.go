@@ -1,6 +1,7 @@
 package vm
 
 import (
+	"fmt"
 	"github.com/looplanguage/compiler/code"
 	"github.com/looplanguage/loop/models/object"
 )
@@ -64,6 +65,22 @@ func (vm *VM) Run() error {
 			err := vm.compareOperator(op)
 			if err != nil {
 				return err
+			}
+		case code.OpJump:
+			pos := int(code.ReadUint16(vm.instructions[ip+1:]))
+			ip = pos - 1
+		case code.OpJumpIfNotTrue:
+			pos := int(code.ReadUint16(vm.instructions[ip+1:]))
+			ip += 2
+
+			condition := vm.pop()
+			obj, ok := condition.(*object.Boolean)
+			if !ok {
+				return fmt.Errorf("condition is not boolean. got=%q", condition.Type())
+			}
+
+			if !obj.Value {
+				ip = pos - 1
 			}
 		}
 	}

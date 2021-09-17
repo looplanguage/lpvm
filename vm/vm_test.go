@@ -41,6 +41,18 @@ func TestBooleanExpressions(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestConditionalExpressions(t *testing.T) {
+	tests := []vmTestCase{
+		{input: "if (true) { 10 }", expected: 10},
+		{input: "if (true) { 10 } else { 20 }", expected: 10},
+		{input: "if (false) { 10 } else { 20 }", expected: 20},
+		{input: "if (1 > 10) { 10 } else { 20 }", expected: 20},
+		{input: "if (1 > 10) { 10 } else if(true) { 400 } else { 20 }", expected: 400},
+	}
+
+	runVmTests(t, tests)
+}
+
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
