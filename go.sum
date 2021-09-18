@@ -4,6 +4,8 @@ github.com/looplanguage/loop v0.1.0 h1:el+qk1JZJLXpmbRsYTRVsLYzdrMACIOQsEUnpRMZA
 github.com/looplanguage/loop v0.1.0/go.mod h1:H1ENscrP1l2BSqSe4azQ6owr6TkBd7HgaUwDZDeUT6I=
 github.com/looplanguage/loop v0.2.0 h1:YbIxZpGxiww562Ljue7oqjEqLb7NM592tE6Dl8V5rbE=
 github.com/looplanguage/loop v0.2.0/go.mod h1:H1ENscrP1l2BSqSe4azQ6owr6TkBd7HgaUwDZDeUT6I=
+github.com/looplanguage/loop v0.2.1 h1:nsNSOdpudJDflBpv/E1Fg7chBZ4XwTG13hwEqKNccGE=
+github.com/looplanguage/loop v0.2.1/go.mod h1:H1ENscrP1l2BSqSe4azQ6owr6TkBd7HgaUwDZDeUT6I=
 github.com/mattn/go-colorable v0.1.8 h1:c1ghPdyEDarC70ftn0y+A/Ee++9zz8ljHG1b13eJ0s8=
 github.com/mattn/go-colorable v0.1.8/go.mod h1:u6P/XSegPjTcexA+o6vUJrdnUu04hMope9wVRipJSqc=
 github.com/mattn/go-isatty v0.0.12 h1:wuysRhFDzyxgEmMf5xjvJ2M9dZoWAXNNr5LSBS7uHXY=

@@ -55,6 +55,16 @@ func TestConditionalExpressions(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestVM_VariableDeclarations(t *testing.T) {
+	tests := []vmTestCase{
+		{"var one = 1; one", 1},
+		{"var _test = 10 + 10; _test", 20},
+		{"var _test = 10; var _test2 = _test * 4; _test2", 40},
+	}
+
+	runVmTests(t, tests)
+}
+
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
