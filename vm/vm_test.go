@@ -145,6 +145,54 @@ func TestVM_CallExpressions(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestVM_FunctionBindings(t *testing.T) {
+	tests := []vmTestCase{
+		{"var test = fun() { var one = 1; return one }; test()", 1},
+		{"var test = fun() { var one = 1; var two = 2; return one + two }; test()", 3},
+		{"var global = 100; var test = fun() { return global - 1 }; test()", 99},
+		{
+			input: `
+        var oneAndTwo = fun() { var one = 1; var two = 2; return one + two; };
+        oneAndTwo();
+        `,
+			expected: 3,
+		},
+		{
+			input: `
+        var oneAndTwo = fun() { var one = 1; var two = 2; return one + two; };
+        var threeAndFour = fun() { var three = 3; var four = 4; return three + four; };
+        oneAndTwo() + threeAndFour();
+        `,
+			expected: 10,
+		},
+		{
+			input: `
+        var firstFoobar = fun() { var foobar = 50; return foobar; };
+        var secondFoobar = fun() { var foobar = 100; return foobar; };
+        firstFoobar() + secondFoobar();
+        `,
+			expected: 150,
+		},
+		{
+			input: `
+        var globalSeed = 50;
+        var minusOne = fun() {
+            var num = 1;
+            return globalSeed - num;
+        }
+        var minusTwo = fun() {
+            var num = 2;
+            return globalSeed - num;
+        }
+        minusOne() + minusTwo();
+        `,
+			expected: 97,
+		},
+	}
+
+	runVmTests(t, tests)
+}
+
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
