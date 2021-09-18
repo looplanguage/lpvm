@@ -65,6 +65,16 @@ func TestVM_VariableDeclarations(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestVM_OpAdd(t *testing.T) {
+	tests := []vmTestCase{
+		{`"hello"`, "hello"},
+		{`"hello " + "world"`, "hello world"},
+		{`"hello world"`, "hello world"},
+	}
+
+	runVmTests(t, tests)
+}
+
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
@@ -105,7 +115,7 @@ func testExpectedObject(
 			t.Errorf("testIntegerObject failed: %s", err)
 		}
 	case bool:
-		err := testBoolObject(bool(expected), actual)
+		err := testBoolObject(expected, actual)
 		if err != nil {
 			t.Errorf("testBoolObject failed: %s", err)
 		}
@@ -113,7 +123,26 @@ func testExpectedObject(
 		if actual != Null {
 			t.Errorf("object is not null: %T (%+v)", actual, actual)
 		}
+	case string:
+		err := testStringObject(expected, actual)
+		if err != nil {
+			t.Errorf("testStringObject failed: %s", err)
+		}
 	}
+}
+
+func testStringObject(expected string, actual object.Object) error {
+	result, ok := actual.(*object.String)
+
+	if !ok {
+		return fmt.Errorf("object is not string. got=%T (%+v)", actual, actual)
+	}
+
+	if result.Value != expected {
+		return fmt.Errorf("object has wrong value. got=%s. expected=%s", result.Value, expected)
+	}
+
+	return nil
 }
 
 func testIntegerObject(expected int64, actual object.Object) error {
