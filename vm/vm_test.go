@@ -107,6 +107,27 @@ func TestVM_Hashes(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestVM_IndexExpressions(t *testing.T) {
+	tests := []vmTestCase{
+		{"[1][0]", 1},
+		{"[1, 2, 3][2]", 3},
+		{"[1, 2, 3][3]", Null},
+		{"[1 + 1, 2, 3][3 - 1]", 3},
+		{"[1 + 1, 2, 3][0 * 0]", 2},
+		{"{}[0]", Null},
+		{"{0: 100}[0]", 100},
+		{"{0: 100}[1]", Null},
+		{"{0 + 1: 100}[0]", Null},
+		{"{0 + 1: 100 * 2}[1]", 200},
+		{"{0: 100, 3: 400}[0]", 100},
+		{"{0: 100, 1: 50 * 1}[1]", 50},
+		{"{0 + 1: 100, 2: 2, 3: 3}[3]", 3},
+		{"{0 + 1: 100 * 2}[2]", Null},
+	}
+
+	runVmTests(t, tests)
+}
+
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
