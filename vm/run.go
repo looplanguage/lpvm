@@ -139,14 +139,13 @@ func (vm *VM) Run() error {
 				return err
 			}
 		case code.OpCall:
-			fn, ok := vm.stack[vm.sp-1].(*object.CompiledFunction)
-			if !ok {
-				return fmt.Errorf("attempt to call non-function. got=%q", vm.stack[vm.sp-1].Type())
-			}
+			numArgs := code.ReadUint8(ins[ip+1:])
+			vm.currentFrame().ip += 1
 
-			frame := NewFrame(fn, vm.sp)
-			vm.pushFrame(frame)
-			vm.sp = frame.basePointer + fn.NumLocals
+			err := vm.callFunction(int(numArgs))
+			if err != nil {
+				return err
+			}
 		case code.OpReturnValue:
 			returnValue := vm.pop()
 

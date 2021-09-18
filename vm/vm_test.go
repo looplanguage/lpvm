@@ -145,6 +145,45 @@ func TestVM_CallExpressions(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestVM_CallExpressionsWithArguments(t *testing.T) {
+	tests := []vmTestCase{
+		{"fun(a) { return a }(20)", 20},
+		{"fun(a, b) { return a * b }(20, 2)", 40},
+		{"var double = fun(x) { return x * 2 }; double(500)", 1000},
+		{"var double = fun(x) { return x * 2 }; double(500) + double(500)", 2000},
+		{"var double = fun(x) { return x * 2 }; var test = fun() { return double(2) + double(2) }; test()", 8},
+	}
+
+	runVmTests(t, tests)
+}
+
+func TestVM_CallExpressionsWrongArguments(t *testing.T) {
+	tests := []vmTestCase{
+		{"fun() { return 100 }(2)", "wrong number of arguments. expected=0. got=1"},
+		{"fun() { return 100 }(2, 2)", "wrong number of arguments. expected=0. got=2"},
+		{"fun(x) { return x }(2, 2)", "wrong number of arguments. expected=1. got=2"},
+		{"fun(x, y) { return x }(2)", "wrong number of arguments. expected=2. got=1"},
+		{"fun(x, y) { return x }()", "wrong number of arguments. expected=2. got=0"},
+	}
+
+	for _, tt := range tests {
+		program := parse(tt.input)
+		comp := compiler.Create()
+		err := comp.Compile(program)
+		if err != nil {
+			t.Fatalf("compiler error: %s", err)
+		}
+		vm := Create(comp.Bytecode())
+		err = vm.Run()
+		if err == nil {
+			t.Fatalf("expected VM error but resulted in none.")
+		}
+		if err.Error() != tt.expected {
+			t.Fatalf("wrong VM error: want=%q, got=%q", tt.expected, err)
+		}
+	}
+}
+
 func TestVM_FunctionBindings(t *testing.T) {
 	tests := []vmTestCase{
 		{"var test = fun() { var one = 1; return one }; test()", 1},
