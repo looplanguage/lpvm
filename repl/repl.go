@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/looplanguage/compiler/compiler"
 	"github.com/looplanguage/loop/lexer"
+	"github.com/looplanguage/loop/models/object"
 	"github.com/looplanguage/loop/parser"
 	"github.com/looplanguage/lpvm/vm"
 	"io"
@@ -16,6 +17,10 @@ func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 
 	i := 0
+
+	constants := []object.Object{}
+	globals := make([]object.Object, vm.GlobalsSize)
+	symbolTable := compiler.CreateSymbolTable()
 
 	for {
 		i++
@@ -39,7 +44,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		comp := compiler.Create()
+		comp := compiler.CreateWithState(symbolTable, constants)
 		err := comp.Compile(program)
 
 		if err != nil {
@@ -47,7 +52,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		machine := vm.Create(comp.Bytecode())
+		machine := vm.CreateWithStore(comp.Bytecode(), globals)
 
 		err = machine.Run()
 		if err != nil {
