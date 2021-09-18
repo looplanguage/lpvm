@@ -138,6 +138,7 @@ func TestVM_CallExpressions(t *testing.T) {
 		{"fun() { return 20 * 2 }()", 40},
 		{"var test = fun() { return 20 * 2 }; test()", 40},
 		{"var test = fun() { 20 * 2 + 100 }; test()", Null},
+		{"var test = fun() { return fun() { return 20 } }; test()()", 20},
 		{"var test = fun() { return 10 }; var testTwo = fun() { return 4 }; test() * testTwo()", 40},
 	}
 
