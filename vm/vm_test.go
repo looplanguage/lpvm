@@ -87,6 +87,26 @@ func TestVM_Arrays(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestVM_Hashes(t *testing.T) {
+	tests := []vmTestCase{
+		{"{}", map[object.HashKey]int64{}},
+		{"{1: 2, 3: 4}", map[object.HashKey]int64{
+			(&object.Integer{Value: 1}).Hash(): 2,
+			(&object.Integer{Value: 3}).Hash(): 4,
+		}},
+		{"{1: 2 + 2, 3: 4 * 2}", map[object.HashKey]int64{
+			(&object.Integer{Value: 1}).Hash(): 4,
+			(&object.Integer{Value: 3}).Hash(): 8,
+		}},
+		{"{1 + 1: 2 + 2, 3: 4 * 2}", map[object.HashKey]int64{
+			(&object.Integer{Value: 2}).Hash(): 4,
+			(&object.Integer{Value: 3}).Hash(): 8,
+		}},
+	}
+
+	runVmTests(t, tests)
+}
+
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
@@ -139,6 +159,27 @@ func testExpectedObject(
 		err := testStringObject(expected, actual)
 		if err != nil {
 			t.Errorf("testStringObject failed: %s", err)
+		}
+	case map[object.HashKey]int64:
+		hash, ok := actual.(*object.HashMap)
+		if !ok {
+			t.Errorf("object is not Hash. got=%T (%+v)", actual, actual)
+			return
+		}
+		if len(hash.Pairs) != len(expected) {
+			t.Errorf("hash has wrong number of Pairs. want=%d, got=%d",
+				len(expected), len(hash.Pairs))
+			return
+		}
+		for expectedKey, expectedValue := range expected {
+			pair, ok := hash.Pairs[expectedKey]
+			if !ok {
+				t.Errorf("no pair for given key in Pairs")
+			}
+			err := testIntegerObject(expectedValue, pair.Value)
+			if err != nil {
+				t.Errorf("testIntegerObject failed: %s", err)
+			}
 		}
 	case []int:
 		array, ok := actual.(*object.Array)
