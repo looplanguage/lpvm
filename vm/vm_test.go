@@ -75,6 +75,18 @@ func TestVM_OpAdd(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestVM_Arrays(t *testing.T) {
+	tests := []vmTestCase{
+		{"[]", []int{}},
+		{"[1]", []int{1}},
+		{"[1 + 2]", []int{3}},
+		{"[1 + 2, 1 * 1]", []int{3, 1}},
+		{"[1 + 2, 1 * 1, 42 - 10]", []int{3, 1, 32}},
+	}
+
+	runVmTests(t, tests)
+}
+
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
@@ -127,6 +139,24 @@ func testExpectedObject(
 		err := testStringObject(expected, actual)
 		if err != nil {
 			t.Errorf("testStringObject failed: %s", err)
+		}
+	case []int:
+		array, ok := actual.(*object.Array)
+		if !ok {
+			t.Errorf("object is not array: %T (%+v)", actual, actual)
+			return
+		}
+
+		if len(array.Elements) != len(expected) {
+			t.Errorf("wrong number of elements. expected=%d. got=%d", len(expected), len(array.Elements))
+			return
+		}
+
+		for i, expectedElement := range expected {
+			err := testIntegerObject(int64(expectedElement), array.Elements[i])
+			if err != nil {
+				t.Errorf("testIntegerObject failed: %s", err)
+			}
 		}
 	}
 }
