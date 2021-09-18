@@ -128,6 +128,19 @@ func TestVM_IndexExpressions(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestVM_CallExpressions(t *testing.T) {
+	tests := []vmTestCase{
+		{"fun() { return 20 }()", 20},
+		{"fun() { 20 }()", Null},
+		{"fun() { }()", Null},
+		{"fun() { return 20 * 2 }()", 40},
+		{"var test = fun() { return 20 * 2 }; test()", 40},
+		{"var test = fun() { 20 * 2 + 100 }; test()", Null},
+	}
+
+	runVmTests(t, tests)
+}
+
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 

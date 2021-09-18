@@ -2,35 +2,45 @@ package vm
 
 import (
 	"fmt"
-	"github.com/looplanguage/compiler/code"
 	"github.com/looplanguage/compiler/compiler"
 	"github.com/looplanguage/loop/models/object"
 )
 
 const StackSize = 2048
 const GlobalsSize = 65536
+const MaxFrames = 1024
 
 var True = &object.Boolean{Value: true}
 var False = &object.Boolean{Value: false}
 var Null = &object.Null{}
 
 type VM struct {
-	constants    []object.Object
-	instructions code.Instructions
+	constants []object.Object
 
 	stack []object.Object
 	sp    int
 
 	globals []object.Object
+
+	frames     []*Frame
+	frameIndex int
 }
 
 func Create(bytecode *compiler.Bytecode) *VM {
+	mainFn := &object.CompiledFunction{Instructions: bytecode.Instructions}
+	mainFrame := NewFrame(mainFn)
+
+	frames := make([]*Frame, MaxFrames)
+
+	frames[0] = mainFrame
+
 	return &VM{
-		instructions: bytecode.Instructions,
-		constants:    bytecode.Constants,
-		stack:        make([]object.Object, StackSize),
-		sp:           0,
-		globals:      make([]object.Object, GlobalsSize),
+		constants:  bytecode.Constants,
+		stack:      make([]object.Object, StackSize),
+		sp:         0,
+		globals:    make([]object.Object, GlobalsSize),
+		frames:     frames,
+		frameIndex: 1,
 	}
 }
 
@@ -38,6 +48,21 @@ func CreateWithStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
 	vm := Create(bytecode)
 	vm.globals = s
 	return vm
+}
+
+func (vm *VM) currentFrame() *Frame {
+	return vm.frames[vm.frameIndex-1]
+}
+
+func (vm *VM) pushFrame(f *Frame) {
+	vm.frames[vm.frameIndex] = f
+	vm.frameIndex++
+}
+
+func (vm *VM) popFrame() *Frame {
+	vm.frameIndex--
+
+	return vm.frames[vm.frameIndex]
 }
 
 func (vm *VM) pop() object.Object {

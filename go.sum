@@ -2,3 +2,5 @@ github.com/looplanguage/loop v0.2.1 h1:nsNSOdpudJDflBpv/E1Fg7chBZ4XwTG13hwEqKNcc
 github.com/looplanguage/loop v0.2.1/go.mod h1:H1ENscrP1l2BSqSe4azQ6owr6TkBd7HgaUwDZDeUT6I=
 github.com/looplanguage/loop v0.2.2 h1:ZONRZv4NllPURvJd1BdOLy+KZjWaoaEZDHVvdXXFgyo=
 github.com/looplanguage/loop v0.2.2/go.mod h1:H1ENscrP1l2BSqSe4azQ6owr6TkBd7HgaUwDZDeUT6I=
+github.com/looplanguage/loop v0.3.0 h1:8F/XJol3pCq6ZWos0ApliAY7HTRLD23Cu9qUJP9wgng=
+github.com/looplanguage/loop v0.3.0/go.mod h1:H1ENscrP1l2BSqSe4azQ6owr6TkBd7HgaUwDZDeUT6I=
