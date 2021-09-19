@@ -52,7 +52,10 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		machine := vm.CreateWithStore(comp.Bytecode(), globals)
+		code := comp.Bytecode()
+		constants = code.Constants
+
+		machine := vm.CreateWithStore(code, globals)
 
 		err = machine.Run()
 		if err != nil {
