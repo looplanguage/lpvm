@@ -232,6 +232,20 @@ func TestVM_FunctionBindings(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestVM_BuiltinFunctions(t *testing.T) {
+	tests := []vmTestCase{
+		{`len("")`, 0},
+		{`len([])`, 0},
+		{`len([1])`, 1},
+		{`len([1, 2, 3])`, 3},
+		{`len("hello")`, 5},
+		{`len(1)`, &object.Error{Message: `incorrect argument type, can not iterate. got="INTEGER"`}},
+		{`len({})`, &object.Error{Message: `incorrect argument type, can not iterate. got="HASHMAP"`}},
+	}
+
+	runVmTests(t, tests)
+}
+
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
@@ -323,6 +337,15 @@ func testExpectedObject(
 			if err != nil {
 				t.Errorf("testIntegerObject failed: %s", err)
 			}
+		}
+	case *object.Error:
+		errObj, ok := actual.(*object.Error)
+		if !ok {
+			t.Errorf("object is not error. got=%T (%+v)", actual, actual)
+		}
+
+		if errObj.Message != expected.Message {
+			t.Errorf("wrong error. expected=%q. got=%q", expected.Message, errObj.Message)
 		}
 	}
 }

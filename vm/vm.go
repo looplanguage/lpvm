@@ -51,11 +51,30 @@ func CreateWithStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
 }
 
 func (vm *VM) callFunction(numArgs int) error {
-	fn, ok := vm.stack[vm.sp-1-numArgs].(*object.CompiledFunction)
-	if !ok {
-		return fmt.Errorf("attempt to call non-function. got=%q", vm.stack[vm.sp-1].Type())
+	switch fn := vm.stack[vm.sp-1-numArgs].(type) {
+	case *object.CompiledFunction:
+		return vm.callUserFunction(fn, numArgs)
+	case *object.BuiltinFunction:
+		return vm.callBuiltinFunction(fn, numArgs)
 	}
 
+	return fmt.Errorf("attempt to call non-function. got=%q", vm.stack[vm.sp-1].Type())
+}
+
+func (vm *VM) callBuiltinFunction(fn *object.BuiltinFunction, numArgs int) error {
+	args := vm.stack[vm.sp-numArgs : vm.sp]
+
+	result := fn.Function(args)
+	vm.sp = vm.sp - numArgs - 1
+
+	if result != nil {
+		return vm.push(result)
+	}
+
+	return vm.push(Null)
+}
+
+func (vm *VM) callUserFunction(fn *object.CompiledFunction, numArgs int) error {
 	if numArgs != fn.NumParameters {
 		return fmt.Errorf("wrong number of arguments. expected=%d. got=%d", fn.NumParameters, numArgs)
 	}
