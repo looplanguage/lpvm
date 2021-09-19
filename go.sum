@@ -10,3 +10,7 @@ github.com/looplanguage/loop v0.3.2 h1:GeAPoMkUCNgUS0nfcEYKPcEwdSay+l5Sayhe0o72g
 github.com/looplanguage/loop v0.3.2/go.mod h1:H1ENscrP1l2BSqSe4azQ6owr6TkBd7HgaUwDZDeUT6I=
 github.com/looplanguage/loop v0.4.0 h1:HTa0CLCtaNo8ErSB43yIgzMTmgwKJiw1ckQDrb2ljG0=
 github.com/looplanguage/loop v0.4.0/go.mod h1:H1ENscrP1l2BSqSe4azQ6owr6TkBd7HgaUwDZDeUT6I=
+github.com/looplanguage/loop v0.5.0 h1:Tyz24iVPmZExN8SIhcXUWSFFHENsLeyR9JcpvzkpZag=
+github.com/looplanguage/loop v0.5.0/go.mod h1:H1ENscrP1l2BSqSe4azQ6owr6TkBd7HgaUwDZDeUT6I=
+github.com/looplanguage/loop v0.5.1 h1:pCWxUBPalzJQ5Ueo07dyhk15WhwAXpEvocDqShq+x6g=
+github.com/looplanguage/loop v0.5.1/go.mod h1:H1ENscrP1l2BSqSe4azQ6owr6TkBd7HgaUwDZDeUT6I=

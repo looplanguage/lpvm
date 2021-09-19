@@ -28,7 +28,8 @@ type VM struct {
 
 func Create(bytecode *compiler.Bytecode) *VM {
 	mainFn := &object.CompiledFunction{Instructions: bytecode.Instructions}
-	mainFrame := NewFrame(mainFn, 0)
+	mainClosure := &object.Closure{Fn: mainFn}
+	mainFrame := NewFrame(mainClosure, 0)
 
 	frames := make([]*Frame, MaxFrames)
 
@@ -52,8 +53,8 @@ func CreateWithStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
 
 func (vm *VM) callFunction(numArgs int) error {
 	switch fn := vm.stack[vm.sp-1-numArgs].(type) {
-	case *object.CompiledFunction:
-		return vm.callUserFunction(fn, numArgs)
+	case *object.Closure:
+		return vm.callUserClosure(fn, numArgs)
 	case *object.BuiltinFunction:
 		return vm.callBuiltinFunction(fn, numArgs)
 	}
@@ -74,15 +75,15 @@ func (vm *VM) callBuiltinFunction(fn *object.BuiltinFunction, numArgs int) error
 	return vm.push(Null)
 }
 
-func (vm *VM) callUserFunction(fn *object.CompiledFunction, numArgs int) error {
-	if numArgs != fn.NumParameters {
-		return fmt.Errorf("wrong number of arguments. expected=%d. got=%d", fn.NumParameters, numArgs)
+func (vm *VM) callUserClosure(cl *object.Closure, numArgs int) error {
+	if numArgs != cl.Fn.NumParameters {
+		return fmt.Errorf("wrong number of arguments. expected=%d. got=%d", cl.Fn.NumParameters, numArgs)
 	}
 
-	frame := NewFrame(fn, vm.sp-numArgs)
+	frame := NewFrame(cl, vm.sp-numArgs)
 	vm.pushFrame(frame)
 
-	vm.sp = frame.basePointer + fn.NumLocals
+	vm.sp = frame.basePointer + cl.Fn.NumLocals
 
 	return nil
 }
@@ -94,6 +95,23 @@ func (vm *VM) currentFrame() *Frame {
 func (vm *VM) pushFrame(f *Frame) {
 	vm.frames[vm.frameIndex] = f
 	vm.frameIndex++
+}
+
+func (vm *VM) pushClosure(constIndex int, numFree int) error {
+	constant := vm.constants[constIndex]
+	function, ok := constant.(*object.CompiledFunction)
+	if !ok {
+		fmt.Errorf("type is not function. got=%+v", constant)
+	}
+
+	free := make([]object.Object, numFree)
+	for i := 0; i < numFree; i++ {
+		free[i] = vm.stack[vm.sp-numFree+i]
+	}
+	vm.sp = vm.sp - numFree
+
+	closure := &object.Closure{Fn: function, Free: free}
+	return vm.push(closure)
 }
 
 func (vm *VM) popFrame() *Frame {

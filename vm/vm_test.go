@@ -246,6 +246,89 @@ func TestVM_BuiltinFunctions(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestVM_Closures(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			`
+			var newClosure = fun(a) {
+				return fun() { return a; };
+			};
+			var closure = newClosure(99);
+			closure();
+			`,
+			99,
+		},
+		{
+			`
+        var newAdderOuter = fun(a, b) {
+            var c = a + b;
+            return fun(d) {
+                var e = d + c;
+                return fun(f) { return e + f; };
+            };
+        };
+        var newAdderInner = newAdderOuter(1, 2)
+        var adder = newAdderInner(3);
+        adder(8);
+        `,
+			14,
+		},
+		{
+			`
+        var a = 1;
+        var newAdderOuter = fun(b) {
+            return fun(c) {
+                return fun(d) { return a + b + c + d };
+            };
+        };
+        var newAdderInner = newAdderOuter(2)
+        var adder = newAdderInner(3);
+        adder(8);
+        `,
+			14,
+		},
+		{
+			`
+        var newClosure = fun(a, b) {
+            var one = fun() { return a; };
+            var two = fun() { return b; };
+            return fun() { return one() + two(); };
+        };
+        var closure = newClosure(9, 90);
+        closure();
+        `,
+			99,
+		},
+	}
+
+	runVmTests(t, tests)
+}
+
+func TestVM_Recursive(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			`
+			var fibonacci = fun(x) {
+				return if (x == 0) {
+					return 0;
+				} else {
+					if (x == 1) {
+						return 1;
+					} else {
+						return fibonacci(x - 1) + fibonacci(x - 2);
+					}
+				}
+			};
+
+			fibonacci(15);
+`,
+			610,
+		},
+	}
+
+	runVmTests(t, tests)
+}
+
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
