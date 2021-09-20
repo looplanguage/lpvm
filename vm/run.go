@@ -6,7 +6,9 @@ import (
 	"github.com/looplanguage/loop/models/object"
 )
 
-func (vm *VM) Run() error {
+type RanOpcode func(opCode code.OpCode)
+
+func (vm *VM) Run(calledOpcode RanOpcode) error {
 	var ip int                // Instruction Pointer
 	var ins code.Instructions // Current instructions
 	var op code.OpCode        // Current opcode
@@ -17,6 +19,8 @@ func (vm *VM) Run() error {
 		ip = vm.currentFrame().ip
 		ins = vm.currentFrame().Instructions()
 		op = code.OpCode(ins[ip])
+
+		calledOpcode(op)
 
 		switch op {
 		case code.OpConstant:
