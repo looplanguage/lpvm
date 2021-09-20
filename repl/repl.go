@@ -57,7 +57,7 @@ func Start(in io.Reader, out io.Writer) {
 
 		machine := vm.CreateWithStore(code, globals)
 
-		err = machine.Run()
+		err = machine.Run(nil)
 		if err != nil {
 			fmt.Fprintf(out, "vm failed running bytecode with: \n%s\n", err)
 			continue

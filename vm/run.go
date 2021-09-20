@@ -20,7 +20,9 @@ func (vm *VM) Run(calledOpcode RanOpcode) error {
 		ins = vm.currentFrame().Instructions()
 		op = code.OpCode(ins[ip])
 
-		calledOpcode(op)
+		if calledOpcode != nil {
+			calledOpcode(op)
+		}
 
 		switch op {
 		case code.OpConstant:

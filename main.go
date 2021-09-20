@@ -37,7 +37,7 @@ func main() {
 	}
 
 	machine := vm.Create(&Bytecode)
-	err = machine.Run()
+	err = machine.Run(nil)
 
 	if err != nil {
 		log.Fatal(err)
