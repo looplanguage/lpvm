@@ -29,5 +29,5 @@ func (vm *VM) OpAdd() error {
 		}
 	}
 
-	return fmt.Errorf("unknown operation exception. got=%q. got=%q", left.Type(), right.Type())
+	return fmt.Errorf("unknown operation exception. got=%+v. got=%+v", left, right)
 }
