@@ -16,3 +16,5 @@ github.com/looplanguage/loop v0.5.0 h1:Tyz24iVPmZExN8SIhcXUWSFFHENsLeyR9JcpvzkpZ
 github.com/looplanguage/loop v0.5.0/go.mod h1:H1ENscrP1l2BSqSe4azQ6owr6TkBd7HgaUwDZDeUT6I=
 github.com/looplanguage/loop v0.5.1 h1:pCWxUBPalzJQ5Ueo07dyhk15WhwAXpEvocDqShq+x6g=
 github.com/looplanguage/loop v0.5.1/go.mod h1:H1ENscrP1l2BSqSe4azQ6owr6TkBd7HgaUwDZDeUT6I=
+github.com/looplanguage/loop v0.5.2 h1:ZukH3aO9Khf5PgwQF3L33ehOP7PBhZt+FKmyxe1MB7o=
+github.com/looplanguage/loop v0.5.2/go.mod h1:H1ENscrP1l2BSqSe4azQ6owr6TkBd7HgaUwDZDeUT6I=

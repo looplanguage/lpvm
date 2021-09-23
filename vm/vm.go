@@ -16,7 +16,7 @@ var Null = &object.Null{}
 
 type VM struct {
 	constants []object.Object
-	variables []compiler.VariableScope
+	variables []object.Object
 
 	stack []object.Object
 	sp    int
@@ -43,7 +43,7 @@ func Create(bytecode *compiler.Bytecode) *VM {
 		globals:    make([]object.Object, GlobalsSize),
 		frames:     frames,
 		frameIndex: 1,
-		variables:  bytecode.Variables,
+		variables:  make([]object.Object, GlobalsSize),
 	}
 }
 
