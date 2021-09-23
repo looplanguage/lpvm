@@ -36,6 +36,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Println(Bytecode.Instructions.String())
+
 	machine := vm.Create(&Bytecode)
 	err = machine.Run(nil)
 

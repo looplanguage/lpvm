@@ -174,6 +174,22 @@ func (vm *VM) Run(calledOpcode RanOpcode) error {
 			if err != nil {
 				return err
 			}
+		case code.OpSetVar:
+			scope := code.ReadUint16(ins[ip+1:])
+			index := code.ReadUint16(ins[ip+3:])
+			fmt.Printf("SET [%d] %d\n", scope, index)
+
+			vm.currentFrame().ip += 4
+
+			vm.variables[scope].Variables[index].Object = vm.pop()
+		case code.OpGetVar:
+			scope := code.ReadUint16(ins[ip+1:])
+			index := code.ReadUint16(ins[ip+3:])
+			fmt.Printf("GET [%d] %d\n", scope, index)
+
+			vm.currentFrame().ip += 4
+
+			vm.push(vm.variables[scope].Variables[index].Object)
 		case code.OpSetLocal:
 			localIndex := code.ReadUint8(ins[ip+1:])
 			vm.currentFrame().ip += 1
