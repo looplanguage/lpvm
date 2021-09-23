@@ -155,8 +155,12 @@ func (vm *VM) Run(calledOpcode RanOpcode) error {
 		case code.OpReturnValue:
 			returnValue := vm.pop()
 
-			frame := vm.popFrame()
-			vm.sp = frame.basePointer - 1
+			if vm.frameIndex != 1 {
+				frame := vm.popFrame()
+				vm.sp = frame.basePointer - 1
+			} else {
+				vm.sp = 0
+			}
 
 			err := vm.push(returnValue)
 			if err != nil {
@@ -169,6 +173,22 @@ func (vm *VM) Run(calledOpcode RanOpcode) error {
 			err := vm.push(Null)
 			if err != nil {
 				return err
+			}
+		case code.OpSetVar:
+			index := code.ReadUint16(ins[ip+1:])
+
+			vm.currentFrame().ip += 2
+
+			vm.variables[index] = vm.pop()
+		case code.OpGetVar:
+			index := code.ReadUint16(ins[ip+1:])
+
+			vm.currentFrame().ip += 2
+
+			if vm.variables[index] == nil {
+				vm.push(Null)
+			} else {
+				vm.push(vm.variables[index])
 			}
 		case code.OpSetLocal:
 			localIndex := code.ReadUint8(ins[ip+1:])

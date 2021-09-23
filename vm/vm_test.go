@@ -43,11 +43,11 @@ func TestBooleanExpressions(t *testing.T) {
 
 func TestConditionalExpressions(t *testing.T) {
 	tests := []vmTestCase{
-		{input: "if (true) { 10 }", expected: 10},
-		{input: "if (true) { 10 } else { 20 }", expected: 10},
-		{input: "if (false) { 10 } else { 20 }", expected: 20},
-		{input: "if (1 > 10) { 10 } else { 20 }", expected: 20},
-		{input: "if (1 > 10) { 10 } else if(true) { 400 } else { 20 }", expected: 400},
+		{input: "if (true) { return 10 }", expected: 10},
+		{input: "if (true) { return 10 } else { 20 }", expected: 10},
+		{input: "if (false) { return 10 } else { return 20 }", expected: 20},
+		{input: "if (1 > 10) { return 10 } else { return 20 }", expected: 20},
+		{input: "if (1 > 10) { return 10 } else if(true) { return 400 } else { return 20 }", expected: 400},
 		{input: "if (1 > 10) {}", expected: Null},
 		{input: "if (false) {}", expected: Null},
 	}
@@ -174,7 +174,7 @@ func TestVM_CallExpressionsWrongArguments(t *testing.T) {
 			t.Fatalf("compiler error: %s", err)
 		}
 		vm := Create(comp.Bytecode())
-		err = vm.Run()
+		err = vm.Run(nil)
 		if err == nil {
 			t.Fatalf("expected VM error but resulted in none.")
 		}
@@ -345,7 +345,7 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 		}
 
 		vm := Create(comp.Bytecode())
-		err = vm.Run()
+		err = vm.Run(nil)
 		if err != nil {
 			t.Fatalf("vm error: %s", err)
 		}
