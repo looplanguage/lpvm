@@ -329,6 +329,16 @@ func TestVM_Recursive(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestVM_EarlyReturns(t *testing.T) {
+	tests := []vmTestCase{
+		{"if(true) { return 50; return 20 }", 50},
+		{"if(true) { if(true) { return 10; } return 50; return 20 }", 10},
+		{"if(true) { if(true) { if(true) { return 2000; } return 10; } return 50; return 20 }", 2000},
+	}
+
+	runVmTests(t, tests)
+}
+
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
