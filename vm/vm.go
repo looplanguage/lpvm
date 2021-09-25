@@ -130,14 +130,14 @@ func (vm *VM) callUserClosure(cl *object.Closure, numArgs int) error {
 
 		vm.push(MF.Result)
 	} else {
-		/*val := &MemoizedFunction{
+		val := &MemoizedFunction{
 			Id:   cl.Fn.Id,
 			Args: args,
 		}
 
 		MemoizedFunctions[key] = val
 
-		GetFunctionResult = val*/
+		GetFunctionResult = val
 
 		frame := NewFrame(cl, vm.sp-numArgs)
 		vm.pushFrame(frame)
