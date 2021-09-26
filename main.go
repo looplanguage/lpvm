@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"github.com/looplanguage/compiler/compiler"
+	"github.com/looplanguage/lpvm/flags"
 	"github.com/looplanguage/lpvm/repl"
 	"github.com/looplanguage/lpvm/vm"
 	"io/ioutil"
@@ -13,7 +14,9 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 2 {
+	flags.Parse()
+
+	if flags.File == "" {
 		repl.Start(os.Stdin, os.Stdout)
 		return
 	}
