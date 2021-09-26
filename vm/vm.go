@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/looplanguage/compiler/compiler"
 	"github.com/looplanguage/loop/models/object"
+	"github.com/looplanguage/lpvm/flags"
 	"log"
 )
 
@@ -34,6 +35,7 @@ func Create(bytecode *compiler.Bytecode) *VM {
 	mainFrame := NewFrame(mainClosure, 0)
 
 	frames := make([]*Frame, MaxFrames)
+	MemoizationEnabled = flags.OptimizationEnabled("memoize")
 
 	frames[0] = mainFrame
 
@@ -92,53 +94,61 @@ type MemoizedKey struct {
 // Cache needs to be on function ID & arguments, **NOT** just its ID!
 var MemoizedFunctions = make(map[MemoizedKey]*MemoizedFunction, 5000)
 var GetFunctionResult *MemoizedFunction
+var MemoizationEnabled = false
 
 func (vm *VM) callUserClosure(cl *object.Closure, numArgs int) error {
 	if numArgs != cl.Fn.NumParameters {
 		return fmt.Errorf("wrong number of arguments. expected=%d. got=%d", cl.Fn.NumParameters, numArgs)
 	}
 
-	var args = []object.Object{}
+	if MemoizationEnabled {
+		var args = []object.Object{}
 
-	arg := 0
+		arg := 0
 
-	for arg < numArgs {
-		args = append(args, vm.stack[vm.sp-numArgs+arg])
-		arg++
-	}
-
-	concatArgs := ""
-
-	for _, a := range args {
-		concatArgs += a.Type() + a.Inspect()
-	}
-
-	var MF *MemoizedFunction
-	key := MemoizedKey{
-		Id:   cl.Fn.Id,
-		Args: concatArgs,
-	}
-
-	MF = MemoizedFunctions[key]
-
-	if MF != nil && MF.Result != nil {
-		vm.sp = vm.sp - numArgs
-
-		for i := 0; i < numArgs; i++ {
-			vm.pop()
+		for arg < numArgs {
+			args = append(args, vm.stack[vm.sp-numArgs+arg])
+			arg++
 		}
 
-		vm.push(MF.Result)
-	} else {
-		val := &MemoizedFunction{
+		concatArgs := ""
+
+		for _, a := range args {
+			concatArgs += a.Type() + a.Inspect()
+		}
+
+		var MF *MemoizedFunction
+		key := MemoizedKey{
 			Id:   cl.Fn.Id,
-			Args: args,
+			Args: concatArgs,
 		}
 
-		MemoizedFunctions[key] = val
+		MF = MemoizedFunctions[key]
 
-		GetFunctionResult = val
+		if MF != nil && MF.Result != nil {
+			vm.sp = vm.sp - numArgs
 
+			for i := 0; i < numArgs; i++ {
+				vm.pop()
+			}
+
+			vm.push(MF.Result)
+		} else {
+			val := &MemoizedFunction{
+				Id:   cl.Fn.Id,
+				Args: args,
+			}
+
+			MemoizedFunctions[key] = val
+
+			GetFunctionResult = val
+
+			frame := NewFrame(cl, vm.sp-numArgs)
+			vm.pushFrame(frame)
+
+			vm.sp = frame.basePointer + cl.Fn.NumLocals
+		}
+	} else {
 		frame := NewFrame(cl, vm.sp-numArgs)
 		vm.pushFrame(frame)
 

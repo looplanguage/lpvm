@@ -22,7 +22,7 @@ func main() {
 	}
 
 	compiler.RegisterGobTypes()
-	bts, err := ioutil.ReadFile(os.Args[1])
+	bts, err := ioutil.ReadFile(flags.File)
 
 	if err != nil {
 		log.Fatalln(err)
