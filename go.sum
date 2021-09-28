@@ -1,3 +1,4 @@
+github.com/looplanguage/compiler v0.3.0/go.mod h1:ICGyV6904dEAY2tJnbCICK/0C7LMzRo8CWsQd55aRFo=
 github.com/looplanguage/compiler v0.3.1 h1:RUPR/ZN4zS7umq57445muzTh9rffKWE0CR8gV/vYoGM=
 github.com/looplanguage/compiler v0.3.1/go.mod h1:ICGyV6904dEAY2tJnbCICK/0C7LMzRo8CWsQd55aRFo=
 github.com/looplanguage/loop v0.5.2 h1:ZukH3aO9Khf5PgwQF3L33ehOP7PBhZt+FKmyxe1MB7o=
