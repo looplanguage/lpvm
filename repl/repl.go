@@ -45,7 +45,7 @@ func Start(in io.Reader, out io.Writer) {
 		}
 
 		comp := compiler.CreateWithState(symbolTable, constants)
-		err := comp.Compile(program)
+		err := comp.Compile(program, "", "", "")
 
 		if err != nil {
 			fmt.Fprintf(out, "Compilation failed. \n%s\n", err)
