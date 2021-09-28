@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/looplanguage/compiler/compiler"
 	"github.com/looplanguage/loop/models/object"
+	"github.com/looplanguage/lpvm/flags"
+	"log"
 )
 
 const StackSize = 2048
@@ -33,6 +35,7 @@ func Create(bytecode *compiler.Bytecode) *VM {
 	mainFrame := NewFrame(mainClosure, 0)
 
 	frames := make([]*Frame, MaxFrames)
+	MemoizationEnabled = flags.OptimizationEnabled("memoize")
 
 	frames[0] = mainFrame
 
@@ -77,15 +80,80 @@ func (vm *VM) callBuiltinFunction(fn *object.BuiltinFunction, numArgs int) error
 	return vm.push(Null)
 }
 
+type MemoizedFunction struct {
+	Id     int
+	Args   []object.Object
+	Result object.Object
+}
+
+type MemoizedKey struct {
+	Id   int
+	Args string
+}
+
+// Cache needs to be on function ID & arguments, **NOT** just its ID!
+var MemoizedFunctions = make(map[MemoizedKey]*MemoizedFunction, 5000)
+var GetFunctionResult *MemoizedFunction
+var MemoizationEnabled = false
+
 func (vm *VM) callUserClosure(cl *object.Closure, numArgs int) error {
 	if numArgs != cl.Fn.NumParameters {
 		return fmt.Errorf("wrong number of arguments. expected=%d. got=%d", cl.Fn.NumParameters, numArgs)
 	}
 
-	frame := NewFrame(cl, vm.sp-numArgs)
-	vm.pushFrame(frame)
+	if MemoizationEnabled {
+		var args = []object.Object{}
 
-	vm.sp = frame.basePointer + cl.Fn.NumLocals
+		arg := 0
+
+		for arg < numArgs {
+			args = append(args, vm.stack[vm.sp-numArgs+arg])
+			arg++
+		}
+
+		concatArgs := ""
+
+		for _, a := range args {
+			concatArgs += a.Type() + a.Inspect()
+		}
+
+		var MF *MemoizedFunction
+		key := MemoizedKey{
+			Id:   cl.Fn.Id,
+			Args: concatArgs,
+		}
+
+		MF = MemoizedFunctions[key]
+
+		if MF != nil && MF.Result != nil {
+			vm.sp = vm.sp - numArgs
+
+			for i := 0; i < numArgs; i++ {
+				vm.pop()
+			}
+
+			vm.push(MF.Result)
+		} else {
+			val := &MemoizedFunction{
+				Id:   cl.Fn.Id,
+				Args: args,
+			}
+
+			MemoizedFunctions[key] = val
+
+			GetFunctionResult = val
+
+			frame := NewFrame(cl, vm.sp-numArgs)
+			vm.pushFrame(frame)
+
+			vm.sp = frame.basePointer + cl.Fn.NumLocals
+		}
+	} else {
+		frame := NewFrame(cl, vm.sp-numArgs)
+		vm.pushFrame(frame)
+
+		vm.sp = frame.basePointer + cl.Fn.NumLocals
+	}
 
 	return nil
 }
@@ -103,7 +171,7 @@ func (vm *VM) pushClosure(constIndex int, numFree int) error {
 	constant := vm.constants[constIndex]
 	function, ok := constant.(*object.CompiledFunction)
 	if !ok {
-		fmt.Errorf("type is not function. got=%+v", constant)
+		log.Fatalf("type is not function. got=%+v\n", constant)
 	}
 
 	free := make([]object.Object, numFree)
@@ -116,7 +184,12 @@ func (vm *VM) pushClosure(constIndex int, numFree int) error {
 	return vm.push(closure)
 }
 
-func (vm *VM) popFrame() *Frame {
+func (vm *VM) popFrame(returnValue object.Object) *Frame {
+	if GetFunctionResult != nil {
+		GetFunctionResult.Result = returnValue
+		GetFunctionResult = nil
+	}
+
 	vm.frameIndex--
 
 	return vm.frames[vm.frameIndex]
