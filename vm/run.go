@@ -196,7 +196,9 @@ func (vm *VM) Run(calledOpcode RanOpcode) error {
 
 			frame := vm.currentFrame()
 
-			vm.stack[frame.basePointer+int(localIndex)] = vm.pop()
+			pop := vm.pop()
+
+			vm.stack[frame.basePointer+int(localIndex)] = pop
 		case code.OpGetLocal:
 			localIndex := code.ReadUint8(ins[ip+1:])
 			vm.currentFrame().ip += 1
