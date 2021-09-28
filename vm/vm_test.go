@@ -169,7 +169,7 @@ func TestVM_CallExpressionsWrongArguments(t *testing.T) {
 	for _, tt := range tests {
 		program := parse(tt.input)
 		comp := compiler.Create()
-		err := comp.Compile(program)
+		err := comp.Compile(program, "", "", "")
 		if err != nil {
 			t.Fatalf("compiler error: %s", err)
 		}
@@ -348,7 +348,7 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 		program := parse(tc.input)
 
 		comp := compiler.Create()
-		err := comp.Compile(program)
+		err := comp.Compile(program, "", "", "")
 
 		if err != nil {
 			t.Fatalf("compiler error: %s", err)
