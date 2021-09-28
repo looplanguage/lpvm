@@ -198,7 +198,27 @@ func (vm *VM) Run(calledOpcode RanOpcode) error {
 
 			pop := vm.pop()
 
-			vm.stack[frame.basePointer+int(localIndex)] = pop
+			stackItem := vm.stack[frame.basePointer+int(localIndex)]
+
+			// TODO: To allow setting we can't directly do this, instead we have to go through each possible type and *set* the value. This needs improvement
+			if pop.Type() != stackItem.Type() {
+				return fmt.Errorf("unable to assign different type. got=%q. expected=%q", pop.Type(), stackItem.Type())
+			}
+
+			switch obj := stackItem.(type) {
+			case *object.String:
+				obj.Value = pop.(*object.String).Value
+			case *object.Integer:
+				obj.Value = pop.(*object.Integer).Value
+			case *object.Array:
+				obj.Elements = pop.(*object.Array).Elements
+			case *object.HashMap:
+				obj.Pairs = pop.(*object.HashMap).Pairs
+			case *object.Boolean:
+				obj.Value = pop.(*object.Boolean).Value
+			default:
+				return fmt.Errorf("unable to assign to %q", stackItem.Type())
+			}
 		case code.OpGetLocal:
 			localIndex := code.ReadUint8(ins[ip+1:])
 			vm.currentFrame().ip += 1
@@ -236,6 +256,38 @@ func (vm *VM) Run(calledOpcode RanOpcode) error {
 			err := vm.push(currentClosure.Free[freeIndex])
 			if err != nil {
 				return err
+			}
+		case code.OpSetIndex:
+			arrObj := vm.pop()
+
+			if arrObj.Type() != "ARRAY" && arrObj.Type() != "HASHMAP" {
+				return fmt.Errorf("not indexable element. got=%q", arrObj.Type())
+			}
+
+			indexObj := vm.pop()
+
+			if arrObj.Type() == "ARRAY" {
+				if indexObj.Type() != "INTEGER" {
+					return fmt.Errorf("(array) unable to use as index. got=%q", indexObj.Type())
+				}
+
+				valueObj := vm.pop()
+
+				arrObj.(*object.Array).Elements[indexObj.(*object.Integer).Value] = valueObj
+			} else if arrObj.Type() == "HASHMAP" {
+				if _, ok := indexObj.(object.Hashable); !ok {
+					return fmt.Errorf("(hashmap) unable to use as index. got=%q", indexObj.Type())
+				}
+
+				valueObj := vm.pop()
+				key := indexObj.(object.Hash).Hash()
+
+				pair := object.HashPair{
+					Key:   indexObj,
+					Value: valueObj,
+				}
+
+				arrObj.(*object.HashMap).Pairs[key] = pair
 			}
 		}
 	}
