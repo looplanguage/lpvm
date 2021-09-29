@@ -20,6 +20,7 @@ func Start(in io.Reader, out io.Writer) {
 
 	constants := []object.Object{}
 	globals := make([]object.Object, vm.GlobalsSize)
+	variables := make([]object.Object, vm.GlobalsSize)
 	symbolTable := compiler.CreateSymbolTable()
 
 	for {
@@ -55,7 +56,7 @@ func Start(in io.Reader, out io.Writer) {
 		code := comp.Bytecode()
 		constants = code.Constants
 
-		machine := vm.CreateWithStore(code, globals)
+		machine := vm.CreateWithStore(code, globals, variables)
 
 		err = machine.Run(nil)
 		if err != nil {

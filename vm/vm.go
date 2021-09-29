@@ -39,7 +39,7 @@ func Create(bytecode *compiler.Bytecode) *VM {
 
 	frames[0] = mainFrame
 
-	return &VM{
+	vm := &VM{
 		constants:  bytecode.Constants,
 		stack:      make([]object.Object, StackSize),
 		sp:         0,
@@ -48,15 +48,21 @@ func Create(bytecode *compiler.Bytecode) *VM {
 		frameIndex: 1,
 		variables:  make([]object.Object, GlobalsSize),
 	}
+
+	vm.replaceBuiltinFunctions()
+
+	return vm
 }
 
-func CreateWithStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
+func CreateWithStore(bytecode *compiler.Bytecode, s []object.Object, variables []object.Object) *VM {
 	vm := Create(bytecode)
 	vm.globals = s
+	vm.variables = variables
 	return vm
 }
 
 func (vm *VM) callFunction(numArgs int) error {
+	fmt.Println("Call!")
 	switch fn := vm.stack[vm.sp-1-numArgs].(type) {
 	case *object.Closure:
 		return vm.callUserClosure(fn, numArgs)

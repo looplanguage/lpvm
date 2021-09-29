@@ -167,8 +167,10 @@ func (vm *VM) Run(calledOpcode RanOpcode) error {
 				return err
 			}
 		case code.OpReturn:
-			frame := vm.popFrame(nil)
-			vm.sp = frame.basePointer - 1
+			if vm.frameIndex != 1 {
+				frame := vm.popFrame(nil)
+				vm.sp = frame.basePointer - 1
+			}
 
 			err := vm.push(Null)
 			if err != nil {
